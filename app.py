@@ -17,7 +17,7 @@ os.makedirs(os.path.dirname(DB_NAME), exist_ok=True)
 def init_db():
     # Prevent Render from silently creating a new DB
     if not os.path.exists(DB_NAME):
-        raise RuntimeError("Database file missing ¡X Render created a new working directory.")
+        raise RuntimeError("Database file missing - Render created a new working directory.")
 
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
