@@ -308,7 +308,7 @@ def account():
 
 
 # ------------------------------------------------
-# FREE BACKUP ¡X Export DB
+# FREE BACKUP - Export DB
 # ------------------------------------------------
 @app.route("/export_db")
 def export_db():
@@ -320,7 +320,7 @@ def export_db():
 
 
 # ------------------------------------------------
-# FREE RESTORE ¡X Import DB
+# FREE RESTORE - Import DB
 # ------------------------------------------------
 @app.route("/import_db", methods=["GET", "POST"])
 def import_db():
