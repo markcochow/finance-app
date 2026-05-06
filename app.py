@@ -290,6 +290,26 @@ def account():
 
     return render_template("account.html", history=history, balance=balance)
 
+# ------------------------------------------------
+# Categories management
+# ------------------------------------------------
+@app.route("/categories", methods=["GET", "POST"])
+def categories():
+    conn = get_db()
+
+    if request.method == "POST":
+        new_cat = request.form["name"]
+        try:
+            conn.execute("INSERT INTO categories (name) VALUES (?)", (new_cat,))
+            conn.commit()
+        except:
+            pass  # ignore duplicates
+
+    cats = conn.execute("SELECT * FROM categories ORDER BY name").fetchall()
+    conn.close()
+
+    return render_template("categories.html", categories=cats)
+
 
 # ------------------------------------------------
 # Run
