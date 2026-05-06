@@ -14,11 +14,13 @@ os.makedirs(os.path.dirname(DB_NAME), exist_ok=True)
 # ------------------------------------------------
 # Initialize DB
 # ------------------------------------------------
-def init_db():
-    # Prevent Render from silently creating a new DB
-    if not os.path.exists(DB_NAME):
-        raise RuntimeError("Database file missing - Render created a new working directory.")
+DB_NAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "finance.db")
+os.makedirs(os.path.dirname(DB_NAME), exist_ok=True)
 
+# ------------------------------------------------
+# Initialize DB safely
+# ------------------------------------------------
+def init_db():
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
@@ -57,14 +59,13 @@ def init_db():
         "Food", "Transport", "Groceries", "Shopping", "Bills",
         "Rent", "Medical", "Entertainment", "Salary", "Others"
     ]
-
     for cat in default_categories:
         try:
             c.execute("INSERT INTO categories (name) VALUES (?)", (cat,))
         except:
             pass
 
-    # Insert starting balance = 0 only if empty
+    # Insert starting balance if empty
     count = c.execute("SELECT COUNT(*) FROM account_history").fetchone()[0]
     if count == 0:
         c.execute("INSERT INTO account_history (amount, date, note) VALUES (?, ?, ?)",
