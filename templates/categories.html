@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Categories Summary</title>
+</head>
+
+<body>
+
+<h1>Categories Summary</h1>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Category</th>
+        <th>Total Income</th>
+        <th>Total Expense</th>
+        <th>Net</th>
+    </tr>
+
+    {% for r in rows %}
+    <tr>
+        <td>{{ r.category }}</td>
+        <td>{{ r.income or 0 }}</td>
+        <td>{{ r.expense or 0 }}</td>
+        <td>{{ (r.income or 0) - (r.expense or 0) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<p>
+    <a href="{{ url_for('index') }}">Home</a>
+</p>
+
+</body>
+</html>

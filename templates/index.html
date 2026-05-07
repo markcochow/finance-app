@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Finance Tracker</title>
+</head>
+
+<body>
+
+<h1>Finance Tracker</h1>
+
+<h2>Monthly Summary for {{ selected_month }}</h2>
+
+<p>
+    Income: {{ income }}<br>
+    Expense: {{ expense }}<br>
+    Balance: {{ balance }}
+</p>
+
+<form method="get" action="{{ url_for('index') }}">
+    <label>Select Month:</label>
+    <select name="month" onchange="this.form.submit()">
+        {% for m in months %}
+        <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<hr>
+
+<h3>Filters</h3>
+
+<form method="get" action="{{ url_for('index') }}">
+    <input type="hidden" name="month" value="{{ selected_month }}">
+
+    <label>Search:</label>
+    <input type="text" name="search" value="{{ search }}">
+
+    <label>Category:</label>
+    <input type="text" name="category" value="{{ category_filter }}">
+
+    <label>Type:</label>
+    <select name="type">
+        <option value="">All</option>
+        <option value="income" {% if type_filter == "income" %}selected{% endif %}>Income</option>
+        <option value="expense" {% if type_filter == "expense" %}selected{% endif %}>Expense</option>
+    </select>
+
+    <label>Sort:</label>
+    <select name="sort">
+        <option value="date_desc" {% if sort == "date_desc" %}selected{% endif %}>Date Desc</option>
+        <option value="date_asc" {% if sort == "date_asc" %}selected{% endif %}>Date Asc</option>
+        <option value="amount_desc" {% if sort == "amount_desc" %}selected{% endif %}>Amount Desc</option>
+        <option value="amount_asc" {% if sort == "amount_asc" %}selected{% endif %}>Amount Asc</option>
+    </select>
+
+    <button type="submit">Apply</button>
+</form>
+
+<hr>
+
+<h2>Transactions</h2>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Date</th>
+        <th>Category</th>
+        <th>Type</th>
+        <th>Amount</th>
+        <th>Notes</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for t in transactions %}
+    <tr>
+        <td>{{ t.date }}</td>
+        <td>{{ t.category }}</td>
+        <td>{{ t.type }}</td>
+        <td>{{ t.amount }}</td>
+        <td>{{ t.notes }}</td>
+        <td>
+            <a href="{{ url_for('edit', id=t.id) }}">Edit</a>
+            <a href="{{ url_for('delete', id=t.id) }}" onclick="return confirm('Delete this item?');">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<p>
+    <a href="{{ url_for('add') }}">Add Transaction</a><br>
+    <a href="{{ url_for('other_transactions') }}">Other Transactions</a><br>
+    <a href="{{ url_for('categories') }}">Categories</a><br>
+    <a href="{{ url_for('account') }}">Account</a><br>
+</p>
+
+</body>
+</html>
