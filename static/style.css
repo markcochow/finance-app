@@ -147,6 +147,10 @@ label {
     font-weight: bold;
 }
 
+label.btn {
+    display: inline-block;
+}
+
 input, select {
     width: 100%;
     padding: 10px;
