@@ -19,6 +19,23 @@
     </div>
 </div>
 
+<div class="button-row" style="text-align:center; margin-top:30px;">
+
+<!-- Export DB -->
+<a class="btn" href="{{ url_for('export_db') }}">Export Database</a>
+
+<!-- Import DB (opens file picker) -->
+<label for="dbfile" class="btn" style="cursor:pointer;">
+    Import Database
+</label>
+
+<!-- Hidden file input -->
+<form id="importForm" method="post" action="{{ url_for('import_db') }}" enctype="multipart/form-data" style="display:none;">
+    <input type="file" id="dbfile" name="file" onchange="document.getElementById('importForm').submit();">
+</form>
+
+</div>
+
 <div class="container">
 
 <h1>Finance Dashboard</h1>
