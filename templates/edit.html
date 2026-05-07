@@ -1,22 +1,31 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Edit Transaction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
+<div class="top-bar">
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}">Home</a>
+    </div>
+</div>
+
+<div class="container">
+
 <h1>Edit Transaction</h1>
+
+<div class="form-box">
 
 <form method="post" action="{{ url_for('edit', id=transaction.id) }}">
 
-    <label>Date:</label>
+    <label>Date</label>
     <input type="date" name="date" value="{{ transaction.date }}" required>
 
-    <br><br>
-
-    <label>Category:</label>
+    <label>Category</label>
     <select name="category">
         {% for c in categories %}
         <option value="{{ c.name }}" {% if c.name == transaction.category %}selected{% endif %}>
@@ -25,34 +34,25 @@
         {% endfor %}
     </select>
 
-    <br><br>
-
-    <label>Type:</label>
+    <label>Type</label>
     <select name="type">
         <option value="income" {% if transaction.type == "income" %}selected{% endif %}>Income</option>
         <option value="expense" {% if transaction.type == "expense" %}selected{% endif %}>Expense</option>
     </select>
 
-    <br><br>
-
-    <label>Amount:</label>
+    <label>Amount</label>
     <input type="number" step="0.01" name="amount" value="{{ transaction.amount }}" required>
 
-    <br><br>
-
-    <label>Notes:</label>
+    <label>Notes</label>
     <input type="text" name="notes" value="{{ transaction.notes }}">
 
-    <br><br>
+    <button type="submit" class="btn">Update</button>
 
-    <button type="submit">Update</button>
 </form>
 
-<hr>
+</div>
 
-<p>
-    <a href="{{ url_for('index') }}">Home</a>
-</p>
+</div>
 
 </body>
 </html>
