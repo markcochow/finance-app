@@ -14,9 +14,10 @@ DB_NAME = "finance.db"   # For Render; change to "/data/finance.db" on Railway
 # --------------------------------------------------
 def init_db():
     conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
 
     # Transactions table
-    conn.execute("""
+    c.execute("""
         CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL,
@@ -28,7 +29,7 @@ def init_db():
     """)
 
     # Account history table
-    conn.execute("""
+    c.execute("""
         CREATE TABLE IF NOT EXISTS account_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL,
@@ -38,7 +39,7 @@ def init_db():
     """)
 
     # Categories table
-    conn.execute("""
+    c.execute("""
         CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE NOT NULL
@@ -52,7 +53,7 @@ def init_db():
     ]
 
     for cat in default_categories:
-        conn.execute("INSERT OR IGNORE INTO categories (name) VALUES (?)", (cat,))
+        c.execute("INSERT OR IGNORE INTO categories (name) VALUES (?)", (cat,))
 
     conn.commit()
     conn.close()
