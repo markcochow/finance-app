@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Finance Tracker - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<header class="top-bar">
+    <h1>Finance Tracker</h1>
+    <nav>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Home</a>
+        <a href="{{ url_for('add') }}" class="btn btn-success">Add Transaction</a>
+        <a href="{{ url_for('other_transactions') }}" class="btn btn-secondary">Other Transactions</a>
+        <a href="{{ url_for('account') }}" class="btn btn-secondary">Account</a>
+        <a href="{{ url_for('categories') }}" class="btn btn-secondary">Categories</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <!-- Summary + Month selector row -->
+    <section class="summary-section">
+        <div class="summary-header">
+            <div>
+                <h2>Monthly Summary</h2>
+                <p>Summary for <strong>{{ selected_month }}</strong></p>
+            </div>
+
+            <!-- Month selector -->
+            <form method="get" action="{{ url_for('index') }}" class="month-form">
+                <label for="month">Month:</label>
+                <select name="month" id="month" onchange="this.form.submit()">
+                    {% for m in months %}
+                        <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>
+                            {{ m }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        <!-- Summary numbers -->
+        <div class="summary-cards">
+            <div class="card income-card">
+                <h3>Income</h3>
+                <p class="amount">HK$ {{ '%.2f'|format(income) }}</p>
+            </div>
+            <div class="card expense-card">
+                <h3>Expenses</h3>
+                <p class="amount">HK$ {{ '%.2f'|format(expense) }}</p>
+            </div>
+            <div class="card balance-card">
+                <h3>Balance</h3>
+                <p class="amount">HK$ {{ '%.2f'|format(balance) }}</p>
+            </div>
+        </div>
+
+        <!-- Mini charts -->
+        <div class="mini-charts">
+            <div class="chart-box">
+                <h4>Income by Category</h4>
+                <canvas id="incomePie" width="140" height="140"></canvas>
+            </div>
+            <div class="chart-box">
+                <h4>Expenses by Category</h4>
+                <canvas id="expensePie" width="140" height="140"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Backup / Restore -->
+    <section class="backup-section">
+        <h3>Backup & Restore</h3>
+        <div class="backup-actions">
+            <form action="{{ url_for('export_db') }}" method="get">
+                <button type="submit" class="btn btn-secondary">Export DB</button>
+            </form>
+
+            <form action="{{ url_for('import_db') }}" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" required>
+                <button type="submit" class="btn btn-secondary">Import DB</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Filters + Search -->
+    <section class="filters-section">
+        <h2>Transactions ({{ selected_month }})</h2>
+        <form method="get" action="{{ url_for('index') }}" class="filters-form">
+            <input type="hidden" name="month" value="{{ selected_month }}">
+
+            <div class="filter-group">
+                <label for="search">Search:</label>
+                <input type="text" id="search" name="search" value="{{ search }}" placeholder="Notes or category">
+            </div>
+
+            <div class="filter-group">
+                <label for="type">Type:</label>
+                <select name="type" id="type">
+                    <option value="">All</option>
+                    <option value="income" {% if type_filter == 'income' %}selected{% endif %}>Income</option>
+                    <option value="expense" {% if type_filter == 'expense' %}selected{% endif %}>Expense</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="category">Category:</label>
+                <input type="text" id="category" name="category" value="{{ category_filter }}" placeholder="Exact category">
+            </div>
+
+            <div class="filter-group">
+                <label for="sort">Sort:</label>
+                <select name="sort" id="sort">
+                    <option value="date_desc" {% if sort == 'date_desc' %}selected{% endif %}>Date ¡õ</option>
+                    <option value="date_asc" {% if sort == 'date_asc' %}selected{% endif %}>Date ¡ô</option>
+                    <option value="amount_desc" {% if sort == 'amount_desc' %}selected{% endif %}>Amount ¡õ</option>
+                    <option value="amount_asc" {% if sort == 'amount_asc' %}selected{% endif %}>Amount ¡ô</option>
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Apply</button>
+                <a href="{{ url_for('index', month=selected_month) }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <!-- Transactions table -->
+    <section class="table-section">
+        <table class="transactions-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if transactions %}
+                    {% for t in transactions %}
+                        <tr>
+                            <td>{{ t.date }}</td>
+                            <td>{{ t.category }}</td>
+                            <td class="{{ 'income' if t.type == 'income' else 'expense' }}">{{ t.type }}</td>
+                            <td>{{ '%.2f'|format(t.amount) }}</td>
+                            <td>{{ t.notes }}</td>
+                            <td>
+                                <a href="{{ url_for('edit', id=t.id) }}" class="btn btn-small btn-primary">Edit</a>
+                                <a href="{{ url_for('delete', id=t.id) }}" class="btn btn-small btn-danger"
+                                   onclick="return confirm('Delete this transaction?');">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="no-data">No transactions for this month.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </section>
+
+</main>
+
+<script>
+    // Data from backend
+    const incomeData = {{ income_chart | safe }};
+    const expenseData = {{ expense_chart | safe }};
+
+    function buildPieData(rows) {
+        const labels = rows.map(r => r.category);
+        const values = rows.map(r => r.total);
+        return { labels, values };
+    }
+
+    const incomePieCtx = document.getElementById('incomePie').getContext('2d');
+    const expensePieCtx = document.getElementById('expensePie').getContext('2d');
+
+    const incomePieData = buildPieData(incomeData);
+    const expensePieData = buildPieData(expenseData);
+
+    if (incomePieData.values.length > 0) {
+        new Chart(incomePieCtx, {
+            type: 'pie',
+            data: {
+                labels: incomePieData.labels,
+                datasets: [{
+                    data: incomePieData.values,
+                    backgroundColor: ['#4caf50', '#81c784', '#a5d6a7', '#c8e6c9', '#e8f5e9']
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    if (expensePieData.values.length > 0) {
+        new Chart(expensePieCtx, {
+            type: 'pie',
+            data: {
+                labels: expensePieData.labels,
+                datasets: [{
+                    data: expensePieData.values,
+                    backgroundColor: ['#f44336', '#e57373', '#ef9a9a', '#ffcdd2', '#ffebee']
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

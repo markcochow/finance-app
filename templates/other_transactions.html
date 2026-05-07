@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Other Transactions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<header class="top-bar">
+    <h1>Other Transactions</h1>
+    <nav>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">¡ö Back to Home</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <!-- Date Range Selector -->
+    <section class="range-section">
+        <h2>Select Period</h2>
+
+        <form method="get" action="{{ url_for('other_transactions') }}" class="range-form">
+
+            <div class="range-group">
+                <label for="start">Start Month:</label>
+                <input type="month" id="start" name="start" value="{{ start_month }}">
+            </div>
+
+            <div class="range-group">
+                <label for="end">End Month:</label>
+                <input type="month" id="end" name="end" value="{{ end_month }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Apply</button>
+        </form>
+    </section>
+
+    <!-- Summary Box -->
+    <section class="summary-section">
+        <h2>Summary for {{ start_month }} ¡÷ {{ end_month }}</h2>
+
+        <div class="summary-cards">
+            <div class="card income-card">
+                <h3>Total Income</h3>
+                <p class="amount">HK$ {{ '%.2f'|format(income) }}</p>
+            </div>
+
+            <div class="card expense-card">
+                <h3>Total Expenses</h3>
+                <p class="amount">HK$ {{ '%.2f'|format(expense) }}</p>
+            </div>
+
+            <div class="card balance-card">
+                <h3>Balance</h3>
+                <p class="amount">HK$ {{ '%.2f'|format(balance) }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Line Chart -->
+    <section class="chart-section">
+        <h2>Monthly Trend</h2>
+        <canvas id="lineChart" height="120"></canvas>
+    </section>
+
+    <!-- Transactions Table -->
+    <section class="table-section">
+        <h2>Transactions</h2>
+
+        <table class="transactions-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% if transactions %}
+                    {% for t in transactions %}
+                        <tr>
+                            <td>{{ t.date }}</td>
+                            <td>{{ t.category }}</td>
+                            <td class="{{ 'income' if t.type == 'income' else 'expense' }}">{{ t.type }}</td>
+                            <td>{{ '%.2f'|format(t.amount) }}</td>
+                            <td>{{ t.notes }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="no-data">No transactions in this period.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </section>
+
+</main>
+
+<script>
+    // Backend data
+    const lineData = {{ line_data | safe }};
+
+    const months = lineData.map(r => r.month);
+    const incomeValues = lineData.map(r => r.income);
+    const expenseValues = lineData.map(r => r.expense);
+    const balanceValues = lineData.map(r => (r.income - r.expense));
+
+    const ctx = document.getElementById('lineChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: 'Income',
+                    data: incomeValues,
+                    borderColor: '#4caf50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                    tension: 0.3
+                },
+                {
+                    label: 'Expenses',
+                    data: expenseValues,
+                    borderColor: '#f44336',
+                    backgroundColor: 'rgba(244, 67, 54, 0.2)',
+                    tension: 0.3
+                },
+                {
+                    label: 'Balance',
+                    data: balanceValues,
+                    borderColor: '#2196f3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+</script>
+
+</body>
+</html>
