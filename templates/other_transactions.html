@@ -1,36 +1,52 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Other Transactions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
+<div class="top-bar">
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}">Home</a>
+    </div>
+</div>
+
+<div class="container">
+
 <h1>Other Transactions</h1>
 
-<form method="get" action="{{ url_for('other_transactions') }}">
-    <label>Start Month:</label>
+<form method="get">
+    <label>Start Month</label>
     <input type="month" name="start" value="{{ start_month }}">
 
-    <label>End Month:</label>
+    <label>End Month</label>
     <input type="month" name="end" value="{{ end_month }}">
 
     <button type="submit">Apply</button>
 </form>
 
-<hr>
+<div class="summary-cards">
+    <div class="card income">
+        <h3>Income</h3>
+        <p>{{ income }}</p>
+    </div>
 
-<h2>Summary</h2>
-<p>Income: {{ income }}</p>
-<p>Expense: {{ expense }}</p>
-<p>Balance: {{ balance }}</p>
+    <div class="card expense">
+        <h3>Expense</h3>
+        <p>{{ expense }}</p>
+    </div>
 
-<hr>
+    <div class="card balance">
+        <h3>Balance</h3>
+        <p>{{ balance }}</p>
+    </div>
+</div>
 
-<h2>Transactions</h2>
-
-<table border="1" cellpadding="5">
+<div class="table-box">
+<table>
     <tr>
         <th>Date</th>
         <th>Category</th>
@@ -49,12 +65,9 @@
     </tr>
     {% endfor %}
 </table>
+</div>
 
-<hr>
-
-<p>
-    <a href="{{ url_for('index') }}">Home</a>
-</p>
+</div>
 
 </body>
 </html>
