@@ -1,24 +1,30 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Finance Tracker</title>
+    <title>Finance Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-<h1>Finance Tracker</h1>
+<div class="top-bar">
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('add') }}">Add</a>
+        <a href="{{ url_for('other_transactions') }}">Other</a>
+        <a href="{{ url_for('categories') }}">Categories</a>
+        <a href="{{ url_for('account') }}">Account</a>
+    </div>
+</div>
 
-<h2>Monthly Summary for {{ selected_month }}</h2>
+<div class="container">
 
-<p>
-    Income: {{ income }}<br>
-    Expense: {{ expense }}<br>
-    Balance: {{ balance }}
-</p>
+<h1>Finance Dashboard</h1>
 
-<form method="get" action="{{ url_for('index') }}">
-    <label>Select Month:</label>
+<form method="get">
+    <label>Select Month</label>
     <select name="month" onchange="this.form.submit()">
         {% for m in months %}
         <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
@@ -26,74 +32,53 @@
     </select>
 </form>
 
-<hr>
+<div class="summary-cards">
+    <div class="card income">
+        <h3>Income</h3>
+        <p>{{ income }}</p>
+    </div>
 
-<h3>Filters</h3>
+    <div class="card expense">
+        <h3>Expense</h3>
+        <p>{{ expense }}</p>
+    </div>
 
-<form method="get" action="{{ url_for('index') }}">
-    <input type="hidden" name="month" value="{{ selected_month }}">
+    <div class="card balance">
+        <h3>Balance</h3>
+        <p>{{ balance }}</p>
+    </div>
+</div>
 
-    <label>Search:</label>
-    <input type="text" name="search" value="{{ search }}">
+<div class="table-box">
+    <h2>Transactions</h2>
 
-    <label>Category:</label>
-    <input type="text" name="category" value="{{ category_filter }}">
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Notes</th>
+            <th>Actions</th>
+        </tr>
 
-    <label>Type:</label>
-    <select name="type">
-        <option value="">All</option>
-        <option value="income" {% if type_filter == "income" %}selected{% endif %}>Income</option>
-        <option value="expense" {% if type_filter == "expense" %}selected{% endif %}>Expense</option>
-    </select>
+        {% for t in transactions %}
+        <tr>
+            <td>{{ t.date }}</td>
+            <td>{{ t.category }}</td>
+            <td>{{ t.type }}</td>
+            <td>{{ t.amount }}</td>
+            <td>{{ t.notes }}</td>
+            <td>
+                <a class="btn" href="{{ url_for('edit', id=t.id) }}">Edit</a>
+                <a class="btn btn-danger" href="{{ url_for('delete', id=t.id) }}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 
-    <label>Sort:</label>
-    <select name="sort">
-        <option value="date_desc" {% if sort == "date_desc" %}selected{% endif %}>Date Desc</option>
-        <option value="date_asc" {% if sort == "date_asc" %}selected{% endif %}>Date Asc</option>
-        <option value="amount_desc" {% if sort == "amount_desc" %}selected{% endif %}>Amount Desc</option>
-        <option value="amount_asc" {% if sort == "amount_asc" %}selected{% endif %}>Amount Asc</option>
-    </select>
-
-    <button type="submit">Apply</button>
-</form>
-
-<hr>
-
-<h2>Transactions</h2>
-
-<table border="1" cellpadding="5">
-    <tr>
-        <th>Date</th>
-        <th>Category</th>
-        <th>Type</th>
-        <th>Amount</th>
-        <th>Notes</th>
-        <th>Actions</th>
-    </tr>
-
-    {% for t in transactions %}
-    <tr>
-        <td>{{ t.date }}</td>
-        <td>{{ t.category }}</td>
-        <td>{{ t.type }}</td>
-        <td>{{ t.amount }}</td>
-        <td>{{ t.notes }}</td>
-        <td>
-            <a href="{{ url_for('edit', id=t.id) }}">Edit</a>
-            <a href="{{ url_for('delete', id=t.id) }}" onclick="return confirm('Delete this item?');">Delete</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-
-<hr>
-
-<p>
-    <a href="{{ url_for('add') }}">Add Transaction</a><br>
-    <a href="{{ url_for('other_transactions') }}">Other Transactions</a><br>
-    <a href="{{ url_for('categories') }}">Categories</a><br>
-    <a href="{{ url_for('account') }}">Account</a><br>
-</p>
+</div>
 
 </body>
 </html>
